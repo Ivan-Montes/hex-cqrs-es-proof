@@ -1,0 +1,127 @@
+version: "3.8"
+
+services:
+
+  mongo-read-db:
+    image: mongo
+    container_name: mongo-read-db
+    environment:
+      MONGO_INITDB_DATABASE: mongo-read-db
+      MONGO_INITDB_ROOT_USERNAME: sa
+      #MONGO_INITDB_ROOT_PASSWORD: password # Version with plain pass
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo-db-pass
+    secrets:
+      - mongo-db-pass
+    volumes:
+      - ./database/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - hex-cqrs-es-net
+    ports:
+      - 27017:27017
+    restart: on-failure:3
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      
+  mongo-write-db:
+    image: mongo
+    container_name: mongo-write-db
+    environment:
+      MONGO_INITDB_DATABASE: mongo-write-db
+      MONGO_INITDB_ROOT_USERNAME: sa
+      #MONGO_INITDB_ROOT_PASSWORD: password # Version with plain pass
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo-db-pass
+    secrets:
+      - mongo-db-pass
+    networks:
+      - hex-cqrs-es-net
+    ports:
+      - 27018:27017
+    restart: on-failure:3
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      
+     
+  kafka:
+    image: bitnami/kafka
+    container_name: kafka
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_KRAFT_CLUSTER_ID=kami-kafka
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes      
+#    volumes:
+#      - kafka_persistent:/var/lib/kafka
+    networks:
+      - hex-cqrs-es-net
+    ports:
+      - 9092:9092
+      - 9093:9093
+    restart: on-failure:3
+    healthcheck:
+      test: "bash -c 'printf \"\" > /dev/tcp/127.0.0.1/9092; exit $$?;'"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: kami-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - hex-cqrs-es-net
+    ports:
+      - 8080:8080
+    restart: on-failure:3
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  hex-cqrs-es:
+    build: ./
+    container_name: hex-cqrs-es
+    env_file: ./.env     
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - hex-cqrs-es-net
+    ports:
+      - 8081:8081
+    restart: on-failure:3
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mongo-read-db:
+        condition: service_healthy
+      mongo-write-db:
+        condition: service_healthy        
+          
+networks:
+  hex-cqrs-es-net:
+    name: hex-cqrs-es-net
+    ipam:
+      config:
+        - subnet: 172.33.0.0/16
+          gateway: 172.33.0.1 
+          
+secrets:
+  mongo-db-pass:
+    file: ./database/mongo-db-pass.txt
+              
+#volumes:
+#  kafka_persistent: {}
