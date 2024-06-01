@@ -3,7 +3,7 @@ spring:
   application:
     name: hex-cqrs-es-proof
   config:
-    import: "optional:classpath:topsecret.yml"
+    import: optional:file:.env[.properties]
     
   # Kafka settings
   kafka:
@@ -30,8 +30,8 @@ spring:
 # mongodb server uri               
 mongodb:
   uri:
-    read: mongodb://sa:${mongo-db-pass.read:invalidPassword}@localhost:27017/mongo-read-db?authSource=admin
-    write: mongodb://sa:${mongo-db-pass.write:invalidPassword}@localhost:27018/mongo-write-db?authSource=admin
+    read: mongodb://sa:${MONGO-DB-PASS_READ:invalidPassword}@localhost:27017/mongo-read-db?authSource=admin
+    write: mongodb://sa:${MONGO-DB-PASS_WRITE:invalidPassword}@localhost:27018/mongo-write-db?authSource=admin
     
 server:
   port: ${HEX-CQRS-ES.SERVER.PORT:8081}
