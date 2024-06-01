@@ -2,8 +2,6 @@ package dev.ime.infrastructure.adapter;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +9,7 @@ import dev.ime.application.config.ApplicationConstant;
 import dev.ime.application.event.ClientCreatedEvent;
 import dev.ime.application.event.ClientDeletedEvent;
 import dev.ime.application.event.ClientUpdatedEvent;
+import dev.ime.config.LoggerUtil;
 import dev.ime.domain.event.Event;
 import dev.ime.domain.port.outbound.ClientProjectorPort;
 import dev.ime.infrastructure.entity.ClientMongoEntity;
@@ -20,13 +19,13 @@ import dev.ime.infrastructure.repository.read.ClientNoSqlReadRepository;
 public class ClientProjectorAdapter implements ClientProjectorPort{
 
 	private final ClientNoSqlReadRepository clientNoSqlReadRepository;
-	private final Logger logger;
+	private final LoggerUtil loggerUtil;
 	
 	public ClientProjectorAdapter(ClientNoSqlReadRepository clientNoSqlReadRepository,
-			Logger logger) {
+			LoggerUtil loggerUtil) {
 		super();
 		this.clientNoSqlReadRepository = clientNoSqlReadRepository;
-		this.logger = logger;
+		this.loggerUtil = loggerUtil;
 	}
 
 	@Override
@@ -38,8 +37,7 @@ public class ClientProjectorAdapter implements ClientProjectorPort{
 			
 			saveClientEntity(clientMongoEntity);
 			
-			//logger.log(Level.INFO, "### [ClientProjectorAdapter] -> [ClientCreatedEvent] -> [ {0} ]", clientMongoEntity);
-			logInfoAction("ClientCreatedEvent", clientMongoEntity.toString());
+			logInfo("ClientCreatedEvent", clientMongoEntity.toString());
 		}
 		
 	}
@@ -54,16 +52,16 @@ public class ClientProjectorAdapter implements ClientProjectorPort{
 			
 			if ( optClientFound.isEmpty() ) {
 				
-				logger.info( () -> "### "+ this.getClass().getSimpleName() +" -> [ClientUpdatedEvent] -> [ResourceNotFoundException] -> [ " + ApplicationConstant.CLIENTID + " : " + id + " ]");
+				logInfo("ClientUpdatedEvent] -> [ResourceNotFoundException", ApplicationConstant.CLIENTID + " : " + id );
 				return;
 			}
 
 			ClientMongoEntity clientFound = optClientFound.get();
 			clientFound.setName(clientUpdatedEvent.getName());			
 			
-			clientNoSqlReadRepository.save(clientFound);	
+			saveClientEntity(clientFound);	
 			
-			logger.log(Level.INFO, "### [ClientProjectorAdapter] -> [ClientUpdatedEvent] -> [ {0} ]", clientFound);
+			logInfo("ClientUpdatedEvent", clientFound.toString());
 
 		}	
 		
@@ -79,13 +77,13 @@ public class ClientProjectorAdapter implements ClientProjectorPort{
 			
 			if ( optClientFound.isEmpty() ) {
 				
-				logger.info( () -> "### [ClientProjectorAdapter] -> [ClientDeletedEvent] -> [ResourceNotFoundException] -> [ " + ApplicationConstant.CLIENTID + " : " + id + " ]");
+				logInfo("ClientDeletedEvent] -> [ResourceNotFoundException", ApplicationConstant.CLIENTID + " : "  + id);
 				return;
 			}
 			
 			clientNoSqlReadRepository.delete(optClientFound.get());
 			
-			logger.log(Level.INFO, "### [ClientProjectorAdapter] -> [ClientDeletedEvent] -> [ " + ApplicationConstant.CLIENTID + " : {0} ]", (id != null? id:ApplicationConstant.UNKNOWDATA));
+			logInfo("ClientDeletedEvent", ApplicationConstant.CLIENTID + " : "  + id);
 
 		}
 		
@@ -106,12 +104,10 @@ public class ClientProjectorAdapter implements ClientProjectorPort{
 	    clientNoSqlReadRepository.save(clientMongoEntity);
 	}
 	
-	private void logInfoAction(String methodName, String msg) {
+	private void logInfo(String action, String clientInfo) {
 		
-		String logMessage = String.format("### [%s] -> [%s] -> [ %s ]", this.getClass().getSimpleName(), methodName, msg);
-		
-		logger.log(Level.INFO, logMessage);
-		
+	    loggerUtil.logInfoAction(this.getClass().getSimpleName(), action, clientInfo);
+	    
 	}
-		
+
 }
