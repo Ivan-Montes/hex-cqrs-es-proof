@@ -38,12 +38,8 @@ public class UpdateClientCommandHandler implements CommandHandler{
 		
 		if ( command instanceof UpdateClientCommand updateClientCommand) {
 
-			UUID clientId = updateClientCommand.clientId();
-			
-			if ( clientNoSqlReadRepositoryPort.findById(clientId).isEmpty() ) {
- 
-				throw new ResourceNotFoundException(Map.of(ApplicationConstant.CLIENTID,String.valueOf(clientId)));
-			}
+			final UUID clientId = updateClientCommand.clientId();
+			validateClientExists(clientId);
 			
 			ClientUpdatedEvent event = new ClientUpdatedEvent(
 					databaseSequencePort.generateSequence(ApplicationConstant.SEQ_GEN),
@@ -57,6 +53,15 @@ public class UpdateClientCommandHandler implements CommandHandler{
 		} else {
 			throw new IllegalArgumentException(ApplicationConstant.MSG_ILLEGAL_COMMAND);
 		}		
+		
+	}
+
+	private void validateClientExists(UUID clientId) {
+		
+		if ( clientNoSqlReadRepositoryPort.findById(clientId).isEmpty() ) {
+			 
+			throw new ResourceNotFoundException(Map.of(ApplicationConstant.CLIENTID,String.valueOf(clientId)));
+		}
 		
 	}
 
