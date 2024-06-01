@@ -15,7 +15,7 @@ import dev.ime.infrastructure.entity.DatabaseSequence;
 
 @Repository
 public class DatabaseSequenceAdapter implements DatabaseSequencePort{
-	// ## de donde coje la configuración??
+	
     private final MongoOperations mongoOperations;
     
 	public DatabaseSequenceAdapter(MongoOperations mongoOperations) {
@@ -25,7 +25,7 @@ public class DatabaseSequenceAdapter implements DatabaseSequencePort{
 
 	@Override
 	public Long generateSequence(String seqName) {
-		// Crea la documento / colección ??
+		
 		DatabaseSequence counter = mongoOperations.findAndModify(
 				Query.query(Criteria.where("_id").is(seqName)),
 				new Update().inc("seq", 1L),
