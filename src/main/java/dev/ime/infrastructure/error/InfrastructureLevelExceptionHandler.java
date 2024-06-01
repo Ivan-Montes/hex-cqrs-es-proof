@@ -3,7 +3,6 @@ package dev.ime.infrastructure.error;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +14,22 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import dev.ime.application.config.ApplicationConstant;
 import dev.ime.application.error.ExceptionResponse;
+import dev.ime.config.LoggerUtil;
 
 @ControllerAdvice
 public class InfrastructureLevelExceptionHandler {
 
-	private final Logger logger;
+	private final LoggerUtil loggerUtil;	
 	
-	public InfrastructureLevelExceptionHandler(Logger logger) {
+	public InfrastructureLevelExceptionHandler(LoggerUtil loggerUtil) {
 		super();
-		this.logger = logger;
+		this.loggerUtil = loggerUtil;
 	}
 
 	@ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
 	public ResponseEntity<ExceptionResponse> methodArgumentNotValidException(MethodArgumentNotValidException ex){
 
-		logger.severe("### [InfrastructureLevelExceptionHandler] -> [Throw " + ApplicationConstant.EX_METHOD_ARGUMENT_INVALID + "]");
+		loggerUtil.logSevereAction(ApplicationConstant.EX_METHOD_ARGUMENT_INVALID);
 		Map<String, String> errors = new HashMap<>();
 		    ex.getBindingResult().getAllErrors().forEach( error -> {
 		        String fieldName = ((FieldError) error).getField();
@@ -47,7 +47,7 @@ public class InfrastructureLevelExceptionHandler {
 	@ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<ExceptionResponse>methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex){
 
-		logger.severe("### [InfrastructureLevelExceptionHandler] -> [Launch " + ApplicationConstant.EX_METHOD_ARGUMENT_TYPE + "]");
+		loggerUtil.logSevereAction(ApplicationConstant.EX_METHOD_ARGUMENT_TYPE);
 		String attrName = ex.getName();
 		String typeName = "Unknown type";				
 		Class<?> requiredType = ex.getRequiredType();
@@ -66,7 +66,7 @@ public class InfrastructureLevelExceptionHandler {
 		)		
 	public ResponseEntity<ExceptionResponse> jakartaValidationConstraintViolationException(Exception ex){
 
-		logger.severe("### [InfrastructureLevelExceptionHandler] -> [Cast "+ ApplicationConstant.EX_JAKARTA_VAL + "]");
+		loggerUtil.logSevereAction(ApplicationConstant.EX_JAKARTA_VAL);
 		return new ResponseEntity<>( new ExceptionResponse( UUID.randomUUID(),
 				ApplicationConstant.EX_JAKARTA_VAL,
 				ApplicationConstant.EX_JAKARTA_VAL_DESC,
@@ -77,12 +77,12 @@ public class InfrastructureLevelExceptionHandler {
 	@ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
 	public ResponseEntity<ExceptionResponse> noResourceFoundException(Exception ex){
 		
-		logger.severe("### [InfrastructureLevelExceptionHandler] -> [Summon "+ ApplicationConstant.EX_NO_RESOURCE + "]");
+		loggerUtil.logSevereAction(ApplicationConstant.EX_NO_RESOURCE);
 		return new ResponseEntity<>( new ExceptionResponse( UUID.randomUUID(),
 				ApplicationConstant.EX_NO_RESOURCE,
 				ApplicationConstant.EX_NO_RESOURCE_DESC,
 				Map.of( ex.getLocalizedMessage(), ex.getMessage())  ),
 				HttpStatus.BAD_REQUEST );		
 	}
-		
+	
 }
