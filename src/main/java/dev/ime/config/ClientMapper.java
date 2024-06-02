@@ -16,13 +16,13 @@ public class ClientMapper {
 		super();
 	}
 
-	public Client fromMongoToDomain(ClientMongoEntity mongo) {
+	public Client fromMongoToDomain(ClientMongoEntity mongoEntity) {
 		
-		Client c = new Client();
-		c.setId(mongo.getClientId());
-		c.setName(mongo.getName());
+		Client client = new Client();
+		client.setId(mongoEntity.getClientId());
+		client.setName(mongoEntity.getName());
 		
-		return c;
+		return client;
 	}
 
 	public List<Client> fromListMongoToListDomain(List<ClientMongoEntity> listMongo) {
@@ -36,9 +36,9 @@ public class ClientMapper {
 			.toList();	
 	}
 	
-	public ClientDto fromDomainToDto(Client domain) {
+	public ClientDto fromDomainToDto(Client domainEntity) {
 		
-		return new ClientDto(domain.getId(), domain.getName());
+		return new ClientDto(domainEntity.getId(), domainEntity.getName());
 		
 	}
 
