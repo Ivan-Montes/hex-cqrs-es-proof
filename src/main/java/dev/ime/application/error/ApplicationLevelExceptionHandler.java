@@ -2,7 +2,6 @@ package dev.ime.application.error;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,17 +10,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import dev.ime.application.config.ApplicationConstant;
 import dev.ime.application.exception.BasicException;
+import dev.ime.config.LoggerUtil;
 
 
 
 @ControllerAdvice
 public class ApplicationLevelExceptionHandler {
 
-	private final Logger logger;	
+	private final LoggerUtil loggerUtil;	
 	
-	public ApplicationLevelExceptionHandler(Logger logger) {
+	public ApplicationLevelExceptionHandler(LoggerUtil loggerUtil) {
 		super();
-		this.logger = logger;
+		this.loggerUtil = loggerUtil;
 	}
 
 	@ExceptionHandler({
@@ -31,7 +31,7 @@ public class ApplicationLevelExceptionHandler {
 		})
 	public ResponseEntity<ExceptionResponse> basicException(BasicException ex){
 	
-		logger.severe("### [ApplicationLevelExceptionHandler] -> [Threw " + ex.getName() + " :=: Impl of Basic Exception Class" + "] ###");
+		loggerUtil.logSevereAction(ex.getName() + " :=: Impl of Basic Exception Class");
 		return new ResponseEntity<>( new ExceptionResponse( ex.getIdentifier(),ex.getName(),ex.getDescription(),ex.getErrors() ),
 									HttpStatus.NOT_FOUND );
 	}
@@ -39,7 +39,7 @@ public class ApplicationLevelExceptionHandler {
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ExceptionResponse> illegalArgumentException(IllegalArgumentException ex){
 		
-		logger.severe("### [ApplicationLevelExceptionHandler] -> [Launch " + ApplicationConstant.EX_ILLEGAL_ARGUMENT + "] ###");
+		loggerUtil.logSevereAction(ApplicationConstant.EX_ILLEGAL_ARGUMENT);
 		return new ResponseEntity<>( new ExceptionResponse( UUID.randomUUID(),
 				ApplicationConstant.EX_ILLEGAL_ARGUMENT,
 				ApplicationConstant.EX_ILLEGAL_ARGUMENT_DES,
