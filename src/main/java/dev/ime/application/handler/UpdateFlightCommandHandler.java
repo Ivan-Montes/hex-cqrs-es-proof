@@ -38,12 +38,8 @@ public class UpdateFlightCommandHandler implements CommandHandler{
 		
 		if ( command instanceof UpdateFlightCommand updateFlightCommand ) {
 
-			UUID flightId = updateFlightCommand.flightId();
-			
-			if ( flightNoSqlReadRepositoryPort.findById(flightId).isEmpty() ) {
-				
-				throw new ResourceNotFoundException(Map.of(ApplicationConstant.FLIGHTID,String.valueOf(flightId)));
-			}
+			final UUID flightId = updateFlightCommand.flightId();
+			validateFlightExists(flightId);
 			
 			FlightUpdatedEvent event = new FlightUpdatedEvent(
 					databaseSequencePort.generateSequence(ApplicationConstant.SEQ_GEN),
@@ -58,6 +54,15 @@ public class UpdateFlightCommandHandler implements CommandHandler{
 		} else {
 			throw new IllegalArgumentException(ApplicationConstant.MSG_ILLEGAL_COMMAND);
 		}
+		
+	}
+
+	private void validateFlightExists(UUID flightId) {
+
+		if ( flightNoSqlReadRepositoryPort.findById(flightId).isEmpty() ) {
+			
+			throw new ResourceNotFoundException(Map.of(ApplicationConstant.FLIGHTID,String.valueOf(flightId)));
+		}		
 		
 	}
 
