@@ -9,6 +9,7 @@ import dev.ime.application.dto.ClientDto;
 import dev.ime.application.usecase.CreateClientCommand;
 import dev.ime.application.usecase.DeleteClientCommand;
 import dev.ime.application.usecase.UpdateClientCommand;
+import dev.ime.domain.command.Command;
 import dev.ime.domain.command.CommandHandler;
 import dev.ime.domain.port.outbound.ClientCommandServicePort;
 
@@ -26,8 +27,7 @@ public class ClientCommandService implements ClientCommandServicePort<ClientDto>
 	public void create(ClientDto dto) {
 		
 		CreateClientCommand createClientCommand = new CreateClientCommand(UUID.randomUUID(), dto.name());
-		CommandHandler handler = clientCommandDispatcher.getCommandHandler(createClientCommand);
-		handler.handle(createClientCommand);
+		handleCommand(createClientCommand);
 		
 	}
 
@@ -35,8 +35,7 @@ public class ClientCommandService implements ClientCommandServicePort<ClientDto>
 	public void update(UUID id, ClientDto dto) {
 		
 		UpdateClientCommand updateClientCommand = new UpdateClientCommand(id, dto.name());
-		CommandHandler handler = clientCommandDispatcher.getCommandHandler(updateClientCommand);
-		handler.handle(updateClientCommand);
+		handleCommand(updateClientCommand);
 		
 	}
 
@@ -44,9 +43,15 @@ public class ClientCommandService implements ClientCommandServicePort<ClientDto>
 	public void deleteById(UUID id) {
 		
 		DeleteClientCommand deleteClientCommand = new DeleteClientCommand(id);
-		CommandHandler handler = clientCommandDispatcher.getCommandHandler(deleteClientCommand);
-		handler.handle(deleteClientCommand);
+		handleCommand(deleteClientCommand);
 		
 	}
 
+	private void handleCommand(Command command) {
+		
+        CommandHandler handler = clientCommandDispatcher.getCommandHandler(command);
+        handler.handle(command);
+        
+    }
+	
 }
