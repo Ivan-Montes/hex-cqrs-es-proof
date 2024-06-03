@@ -19,25 +19,25 @@ public class FlightMapper {
 		super();
 	}
 	
-	public Flight fromMongoToDomain(FlightMongoEntity mongo) {
+	public Flight fromMongoToDomain(FlightMongoEntity flightMongoEntity) {
 		
-		Flight f = new Flight();
-		f.setId(mongo.getFlightId());
-		f.setOrigin(mongo.getOrigin());
-		f.setDestiny(mongo.getDestiny());
-		f.setClientSet(mongo.getClientSet()
+		Flight flight = new Flight();
+		flight.setId(flightMongoEntity.getFlightId());
+		flight.setOrigin(flightMongoEntity.getOrigin());
+		flight.setDestiny(flightMongoEntity.getDestiny());
+		flight.setClientSet(flightMongoEntity.getClientSet()
 							.stream()
-							.map( cm -> {
+							.map( clientMongoEntity -> {
 								
-								Client c = new Client();
-								c.setId(cm.getClientId());
-								c.setName(cm.getName());
+								Client client = new Client();
+								client.setId(clientMongoEntity.getClientId());
+								client.setName(clientMongoEntity.getName());
 								
-								return c;
+								return client;
 							})
 							.collect(Collectors.toSet())
 						);		
-		return f;
+		return flight;
 	}
 	
 	public List<Flight> fromListMongoToListDomain(List<FlightMongoEntity> listMongo) {
@@ -51,15 +51,15 @@ public class FlightMapper {
 			.toList();	
 	}
 
-	public FlightDto fromDomainToDto(Flight domain) {
+	public FlightDto fromDomainToDto(Flight domainEntity) {
 		
 		return new FlightDto(
-				domain.getId(),
-				domain.getOrigin(),
-				domain.getDestiny(),
-				domain.getClientSet()
+				domainEntity.getId(),
+				domainEntity.getOrigin(),
+				domainEntity.getDestiny(),
+				domainEntity.getClientSet()
 						.stream()
-						.map( c -> new ClientDto(c.getId(), c.getName()) )				
+						.map( client -> new ClientDto(client.getId(), client.getName()) )				
 						.collect(Collectors.toSet())
 				);
 		
