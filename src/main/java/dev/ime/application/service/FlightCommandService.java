@@ -11,6 +11,7 @@ import dev.ime.application.usecase.CreateFlightCommand;
 import dev.ime.application.usecase.DeleteFlightCommand;
 import dev.ime.application.usecase.RemoveClientInFlightCommad;
 import dev.ime.application.usecase.UpdateFlightCommand;
+import dev.ime.domain.command.Command;
 import dev.ime.domain.command.CommandHandler;
 import dev.ime.domain.port.outbound.FlightCommandServicePort;
 
@@ -28,8 +29,7 @@ public class FlightCommandService implements FlightCommandServicePort<FlightDto>
 	public void create(FlightDto dto) {
 		
 		CreateFlightCommand createFlightCommand = new CreateFlightCommand(UUID.randomUUID(), dto.origin(), dto.destiny());
-		CommandHandler commandHandler = flightCommandDispatcher.getCommandHandler(createFlightCommand);
-		commandHandler.handle(createFlightCommand);
+		handleCommand(createFlightCommand);
 		
 	}
 
@@ -37,8 +37,7 @@ public class FlightCommandService implements FlightCommandServicePort<FlightDto>
 	public void update(UUID id, FlightDto dto) {
 		
 		UpdateFlightCommand updateFlightCommand = new UpdateFlightCommand(id, dto.origin(), dto.destiny());
-		CommandHandler commandHandler = flightCommandDispatcher.getCommandHandler(updateFlightCommand);
-		commandHandler.handle(updateFlightCommand);
+		handleCommand(updateFlightCommand);
 		
 	}
 
@@ -46,8 +45,7 @@ public class FlightCommandService implements FlightCommandServicePort<FlightDto>
 	public void deleteById(UUID id) {
 		
 		DeleteFlightCommand deleteFlightCommand = new DeleteFlightCommand(id);
-		CommandHandler commandHandler = flightCommandDispatcher.getCommandHandler(deleteFlightCommand);
-		commandHandler.handle(deleteFlightCommand);
+		handleCommand(deleteFlightCommand);
 		
 	}
 
@@ -55,8 +53,7 @@ public class FlightCommandService implements FlightCommandServicePort<FlightDto>
 	public void removeClientInFlight(UUID flightId, UUID clientId) {
 
 		RemoveClientInFlightCommad removeClientInFlightCommad = new RemoveClientInFlightCommad(flightId, clientId);
-		CommandHandler commandHandler = flightCommandDispatcher.getCommandHandler(removeClientInFlightCommad);
-		commandHandler.handle(removeClientInFlightCommad);
+		handleCommand(removeClientInFlightCommad);
 		
 	}
 
@@ -64,9 +61,15 @@ public class FlightCommandService implements FlightCommandServicePort<FlightDto>
 	public void addClientInFlight(UUID flightId, UUID clientId) {
 		
 		AddClientInFlightCommad addClientInFlightCommad = new AddClientInFlightCommad(flightId, clientId);
-		CommandHandler commandHandler = flightCommandDispatcher.getCommandHandler(addClientInFlightCommad);
-		commandHandler.handle(addClientInFlightCommad);
+		handleCommand(addClientInFlightCommad);
 		
 	}
 
+	private void handleCommand(Command command) {
+		
+		CommandHandler handler = flightCommandDispatcher.getCommandHandler(command);
+		handler.handle(command);
+		
+	}
+	
 }
