@@ -1,9 +1,9 @@
 # hex-cqrs-es-proof
 
-:rotating_light::no_entry:REST API with Hexagonal Architecture, CQRS, Event Sourcing and Kafka
+REST API with Hexagonal Architecture, CQRS, Event Sourcing and Kafka
 
 
-:rotating_light::no_entry:**UNDER CONSTRUCTION**
+**Components**
 - REST API with [OpenApi Swagger](https://swagger.io/) [8081]
 - [Kafka](https://kafka.apache.org/) [9092] + [9093] 
 - [Kafka-UI](https://docs.kafka-ui.provectus.io/) [8080]
