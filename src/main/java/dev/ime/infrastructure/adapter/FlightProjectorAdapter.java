@@ -39,9 +39,7 @@ public class FlightProjectorAdapter implements FlightProjectorPort{
 		if ( event instanceof FlightCreatedEvent flightCreatedEvent) {
 			
 			FlightMongoEntity flightMongoEntity = buildClientEntity(flightCreatedEvent);
-			
-			saveFlightEntity(flightMongoEntity);
-			
+			saveFlightEntity(flightMongoEntity);			
 			logInfo("FlightCreatedEvent", flightMongoEntity.toString());
 
 		} 

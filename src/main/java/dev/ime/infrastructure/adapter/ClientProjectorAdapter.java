@@ -33,11 +33,10 @@ public class ClientProjectorAdapter implements ClientProjectorPort{
 		
 		if ( event instanceof ClientCreatedEvent clientCreatedEvent) {
 			
-			ClientMongoEntity clientMongoEntity = buildClientEntity(clientCreatedEvent);
-			
-			saveClientEntity(clientMongoEntity);
-			
+			ClientMongoEntity clientMongoEntity = buildClientEntity(clientCreatedEvent);			
+			saveClientEntity(clientMongoEntity);			
 			logInfo("ClientCreatedEvent", clientMongoEntity.toString());
+			
 		}
 		
 	}
