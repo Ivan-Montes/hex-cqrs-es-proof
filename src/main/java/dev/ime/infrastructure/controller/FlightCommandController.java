@@ -72,7 +72,7 @@ public class FlightCommandController implements FlightCommandControllerPort<Flig
 
 	@DeleteMapping("/{flightId}/{clientId}")
 	@Override
-	@Operation(summary="Remove a Client in a Flight by their Id", description="Rmove a Client in a Flight by their Id, @return an object Response")
+	@Operation(summary="Remove a Client in a Flight by their Id", description="Remove a Client in a Flight by their Id, @return an object Response")
 	public ResponseEntity<Boolean> removeClientInFlight(@PathVariable UUID flightId, @PathVariable UUID clientId) {
 
 		flightCommandServicePort.removeClientInFlight(flightId, clientId);
